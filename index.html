@@ -14,31 +14,24 @@
         }
         
         body.light-mode { --bg: #e5e5e5; --text: #111111; --primary: #4f46e5; --panel-bg: rgba(240, 240, 240, 0.98); --border: rgba(0, 0, 0, 0.15); }
+        body.accessible-mode { font-size: 1.25rem; }
+        body.accessible-mode .side-btn { width: 65px; height: 65px; }
+
+        /* КАСТОМНЫЙ СКРОЛЛБАР */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; box-shadow: 0 0 10px var(--primary); }
 
         /* ЭФФЕКТ ОБНОВЛЕНИЯ */
         body.emergency-active { animation: glitch-bg 0.5s infinite; }
-        @keyframes glitch-bg {
-            0% { background: #050505; }
-            50% { background: #1a0505; }
-            100% { background: #050505; }
-        }
-        body.emergency-active #title {
-            color: #ff3333;
-            text-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
-            animation: pulse-red 1.5s infinite;
-        }
-        @keyframes pulse-red {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(0.98); }
-        }
+        @keyframes glitch-bg { 0%, 100% { background: #050505; } 50% { background: #1a0505; } }
+        body.emergency-active #title { color: #ff3333; text-shadow: 0 0 30px rgba(255, 0, 0, 0.6); animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.98); } }
 
         .dev-only { display: none !important; }
         .dev-visible { display: flex !important; }
         
-        #pass-gate {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px);
-        }
+        #pass-gate { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
 
         * { cursor: none !important; user-select: none; box-sizing: border-box; }
         body, html { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; transition: 0.5s; margin: 0; overflow: hidden; width: 100%; height: 100%; }
@@ -51,17 +44,26 @@
         .side-btn { position: fixed; width: 50px; height: 50px; background: var(--panel-bg); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 14px; display: flex; align-items: center; justify-content: center; z-index: 110; transition: 0.4s; color: var(--primary); }
         .side-btn:hover { border-color: var(--primary); transform: scale(1.1); }
         
-        .terminal-panel { position: fixed; top: 0; width: 350px; height: 100%; background: var(--panel-bg); z-index: 120; transition: 0.5s; padding: 30px; border-right: 1px solid var(--border); }
-        #settings-panel { left: -350px; }
-        #dev-panel { right: -350px; border-left: 1px solid var(--border); border-right: none; }
-        #settings-panel.open { transform: translateX(350px); }
-        #dev-panel.open { transform: translateX(-350px); }
+        /* ИНДИКАТОР СООБЩЕНИЙ */
+        .badge { position: absolute; top: -5px; right: -5px; background: #ff3333; color: white; font-size: 10px; font-weight: bold; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; border: 2px solid var(--bg); }
+
+        .terminal-panel { position: fixed; top: 0; width: 380px; height: 100%; background: var(--panel-bg); z-index: 120; transition: 0.5s; padding: 30px; display: flex; flex-direction: column; }
+        #settings-panel { left: -380px; border-right: 1px solid var(--border); }
+        #dev-panel { right: -380px; border-left: 1px solid var(--border); }
+        #settings-panel.open { transform: translateX(380px); }
+        #dev-panel.open { transform: translateX(-380px); }
+
+        .chat-area { flex-grow: 1; overflow-y: auto; background: rgba(255,255,255,0.02); border-radius: 16px; padding: 15px; margin: 10px 0; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border); }
+        .msg { max-width: 85%; padding: 8px 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; }
+        .msg-user { align-self: flex-end; background: var(--input-bg); border: 1px solid var(--border); }
+        .msg-dev { align-self: flex-start; background: var(--primary); color: #000; font-weight: bold; }
 
         .switch { width: 40px; height: 20px; background: #333; border-radius: 20px; position: relative; cursor: pointer; }
-        .switch-on { background: #ff3333; }
+        .switch-on { background: var(--primary); }
         .switch::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
         .switch-on::after { left: 22px; }
 
+        input { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px; color: white; outline: none; font-size: 12px; }
         .btn-interact { pointer-events: auto; }
     </style>
 </head>
@@ -69,10 +71,9 @@
 
 <div id="pass-gate">
     <div class="bg-[#0a0a0a] p-10 rounded-3xl border border-indigo-500 text-center">
-        <h3 class="text-white font-black mb-6 uppercase tracking-tighter">Доступ разработчика</h3>
+        <h3 class="text-white font-black mb-6 uppercase tracking-tighter">Системный вход</h3>
         <input type="password" id="admin-pass-input" class="mb-4 text-center btn-interact w-full p-2 bg-white/5 border border-white/10 rounded" placeholder="Пароль">
         <button onclick="checkPass()" class="w-full bg-indigo-600 py-3 rounded-xl font-bold btn-interact">ВОЙТИ</button>
-        <button onclick="document.getElementById('pass-gate').style.display='none'" class="mt-4 text-[10px] opacity-40 btn-interact uppercase">Отмена</button>
     </div>
 </div>
 
@@ -84,29 +85,62 @@
 </button>
 
 <button id="btn-dev" class="side-btn btn-interact dev-only" style="left: 40px; top: 52%;" onclick="openPanel('dev-panel')">
+    <div id="dev-badge" class="badge">0</div>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
 </button>
 
+<button id="btn-chat" class="side-btn btn-interact" style="right: 40px; bottom: 40px;" onclick="toggleChat()">
+    <div id="chat-badge" class="badge">0</div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+
 <div id="settings-panel" class="terminal-panel">
-    <h2 class="text-2xl font-black mb-8 uppercase tracking-widest text-indigo-500">Система</h2>
-    <div class="flex justify-between items-center p-4 rounded-xl btn-interact bg-white/5 mb-4" onclick="document.body.classList.toggle('light-mode')">
-        <span class="text-[10px] font-bold">СВЕТЛАЯ ТЕМА</span>
+    <h2 class="text-3xl font-black italic mb-8 tracking-tighter text-indigo-500">СИСТЕМА</h2>
+    <div class="space-y-4 flex-grow">
+        <div class="flex justify-between items-center p-4 rounded-xl btn-interact bg-white/5" onclick="toggleOption('light')">
+            <span class="text-[10px] font-bold uppercase">Светлая тема</span>
+            <div id="sw-light" class="switch"></div>
+        </div>
+        <div class="flex justify-between items-center p-4 rounded-xl btn-interact bg-white/5" onclick="toggleOption('acc')">
+            <span class="text-[10px] font-bold uppercase">Слабовидящие</span>
+            <div id="sw-acc" class="switch"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+            <button class="p-4 bg-white/5 rounded-xl text-[10px] font-bold btn-interact hover:bg-white/10" onclick="alert('Язык изменен')">RU</button>
+            <button class="p-4 bg-white/5 rounded-xl text-[10px] font-bold btn-interact hover:bg-white/10" onclick="alert('Language changed')">EN</button>
+        </div>
     </div>
-    <button class="w-full py-4 bg-indigo-600 rounded-xl font-bold btn-interact" onclick="closePanels()">ЗАКРЫТЬ</button>
+    <button class="w-full py-4 bg-indigo-600 rounded-xl font-bold btn-interact mt-4" onclick="closePanels()">СОХРАНИТЬ</button>
 </div>
 
 <div id="dev-panel" class="terminal-panel">
-    <h2 class="text-2xl font-black mb-8 uppercase text-red-500">Консоль</h2>
-    <div class="p-4 rounded-xl mb-6 flex justify-between items-center btn-interact bg-red-500/10 border border-red-500/30" onclick="toggleEmergency()">
+    <h2 class="text-3xl font-black italic mb-4 tracking-tighter text-red-500">КОНСОЛЬ</h2>
+    <div class="p-4 rounded-xl mb-4 flex justify-between items-center btn-interact bg-red-500/10 border border-red-500/20" onclick="toggleEmergency()">
         <span class="text-red-500 font-bold text-[10px]">ОБНОВЛЕНИЕ САЙТА</span>
         <div id="sw-sus" class="switch"></div>
     </div>
-    <button class="w-full py-4 bg-white/5 rounded-xl font-bold btn-interact" onclick="closePanels()">ВЫХОД</button>
+    <div class="text-[9px] opacity-40 uppercase mb-2 font-bold tracking-widest">Входящие сообщения</div>
+    <div id="admin-chat-box" class="chat-area"></div>
+    <div class="flex gap-2 mt-2">
+        <input type="text" id="admin-input" class="flex-1" placeholder="Ответить клиенту...">
+        <button onclick="sendMsg('dev')" class="px-4 bg-indigo-600 rounded-xl font-bold btn-interact">></button>
+    </div>
 </div>
 
-<div id="main-content" class="relative z-10 w-full h-full flex flex-col items-center justify-center pointer-events-none text-center">
-    <h1 id="title" class="text-6xl md:text-9xl font-black italic tracking-tighter btn-interact" onclick="logoClick()">SEROF</h1>
-    <p id="sub" class="mt-2 text-[10px] tracking-[1.2em] font-bold opacity-30 uppercase">Lidar Horror</p>
+<div id="client-chat-window" class="fixed bottom-24 right-8 w-80 h-[450px] border border-white/10 rounded-2xl z-[150] hidden flex-col overflow-hidden bg-black/90 backdrop-blur-xl shadow-2xl">
+    <div class="p-4 border-b border-white/10 text-[10px] font-bold flex justify-between items-center">
+        <span>ПОДДЕРЖКА SeRoF</span> <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+    </div>
+    <div id="client-chat-box" class="chat-area mx-3"></div>
+    <div class="p-3 bg-white/5 flex gap-2">
+        <input type="text" id="client-input" class="flex-1 text-xs" placeholder="Ваш вопрос...">
+        <button onclick="sendMsg('user')" class="px-3 bg-indigo-600 rounded-lg text-xs font-bold btn-interact">ОТПРАВИТЬ</button>
+    </div>
+</div>
+
+<div id="main-content" class="relative z-10 w-full h-full flex flex-col items-center justify-center pointer-events-none text-center p-4">
+    <h1 id="title" class="text-7xl md:text-9xl font-black italic tracking-tighter btn-interact" onclick="logoClick()">SEROF</h1>
+    <p id="sub" class="mt-2 text-[10px] tracking-[1.5em] font-bold opacity-30 uppercase">Lidar Horror Studio</p>
 </div>
 
 <script>
@@ -114,8 +148,10 @@
     let isDevMode = false;
     let clicks = 0;
     let emergency = localStorage.getItem('site_update') === 'true';
+    let unreadDev = 0;
+    let unreadUser = 0;
 
-    // ВХОД: 5 кликов по SEROF или Alt+A
+    // Секретный вход
     function logoClick() { clicks++; if(clicks >= 5) { document.getElementById('pass-gate').style.display='flex'; clicks=0; } }
     window.addEventListener('keydown', (e) => { if(e.altKey && (e.key === 'a' || e.key === 'ф')) document.getElementById('pass-gate').style.display='flex'; });
 
@@ -124,10 +160,19 @@
             isDevMode = true;
             document.getElementById('pass-gate').style.display = 'none';
             document.getElementById('btn-dev').classList.add('dev-visible');
-            alert("Вы вошли как разработчик.");
-        } else { alert("Неверно."); }
+            alert("Админ-панель разблокирована");
+        } else { alert("Ошибка доступа"); }
     }
 
+    // Настройки
+    const settings = { light: false, acc: false };
+    function toggleOption(k) {
+        settings[k] = !settings[k];
+        document.body.classList.toggle(k === 'light' ? 'light-mode' : 'accessible-mode');
+        document.getElementById(`sw-${k}`).classList.toggle('switch-on');
+    }
+
+    // Режим обновления
     function toggleEmergency() {
         emergency = !emergency;
         localStorage.setItem('site_update', emergency);
@@ -138,54 +183,112 @@
         const title = document.getElementById('title');
         const sub = document.getElementById('sub');
         const sw = document.getElementById('sw-sus');
-
         if(emergency) {
             document.body.classList.add('emergency-active');
-            sw.classList.add('switch-on');
+            if(sw) sw.classList.add('switch-on');
             title.innerText = "НА САЙТЕ ИДЕТ ОБНОВЛЕНИЕ";
-            title.classList.replace('text-6xl', 'text-4xl'); // Делаем меньше, чтоб влезло
-            sub.innerText = "ПОЖАЛУЙСТА, ЗАЙДИТЕ ПОЗЖЕ";
+            title.style.fontSize = "4rem";
+            sub.innerText = "ВЕРНЕМСЯ СОВСЕМ СКОРО";
         } else {
             document.body.classList.remove('emergency-active');
-            sw.classList.remove('switch-on');
+            if(sw) sw.classList.remove('switch-on');
             title.innerText = "SEROF";
-            title.classList.replace('text-4xl', 'text-6xl');
-            sub.innerText = "Lidar Horror";
+            title.style.fontSize = "";
+            sub.innerText = "Lidar Horror Studio";
         }
     }
 
-    function openPanel(id) { closePanels(); document.getElementById(id).classList.add('open'); }
+    // Система чата
+    let messages = [];
+    function sendMsg(type) {
+        const inp = document.getElementById(type === 'dev' ? 'admin-input' : 'client-input');
+        if(!inp.value.trim()) return;
+        
+        const msgData = { text: inp.value, type };
+        messages.push(msgData);
+        inp.value = '';
+
+        // Уведомления
+        if(type === 'user') {
+            if(!document.getElementById('dev-panel').classList.contains('open')) {
+                unreadDev++; updateBadges();
+            }
+        } else {
+            if(!document.getElementById('client-chat-window').style.display === 'flex') {
+                unreadUser++; updateBadges();
+            }
+        }
+        renderChat();
+    }
+
+    function updateBadges() {
+        const devB = document.getElementById('dev-badge');
+        const userB = document.getElementById('chat-badge');
+        
+        devB.innerText = unreadDev;
+        devB.style.display = unreadDev > 0 ? 'flex' : 'none';
+        
+        userB.innerText = unreadUser;
+        userB.style.display = unreadUser > 0 ? 'flex' : 'none';
+    }
+
+    function renderChat() {
+        const aBox = document.getElementById('admin-chat-box');
+        const cBox = document.getElementById('client-chat-box');
+        aBox.innerHTML = cBox.innerHTML = '';
+        messages.forEach(m => {
+            const d = document.createElement('div');
+            d.className = `msg msg-${m.type}`;
+            d.innerText = m.text;
+            aBox.appendChild(d.cloneNode(true));
+            cBox.appendChild(d);
+        });
+        aBox.scrollTop = aBox.scrollHeight;
+        cBox.scrollTop = cBox.scrollHeight;
+    }
+
+    function toggleChat() {
+        const w = document.getElementById('client-chat-window');
+        const isOpen = w.style.display === 'flex';
+        w.style.display = isOpen ? 'none' : 'flex';
+        if(!isOpen) { unreadUser = 0; updateBadges(); }
+        renderChat();
+    }
+
+    function openPanel(id) {
+        closePanels();
+        document.getElementById(id).classList.add('open');
+        if(id === 'dev-panel') { unreadDev = 0; updateBadges(); }
+    }
+
     function closePanels() { document.querySelectorAll('.terminal-panel').forEach(p => p.classList.remove('open')); }
 
-    // ЛИДАР ЭФФЕКТ
+    // Лидар
     const canvas = document.getElementById('lidar-canvas');
     const ctx = canvas.getContext('2d');
     let mX=0, mY=0, pts=[];
-
     function init() {
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        pts = []; for(let x=0; x<canvas.width; x+=40) for(let y=0; y<canvas.height; y+=40) pts.push({x,y});
+        pts = []; for(let x=0; x<canvas.width; x+=45) for(let y=0; y<canvas.height; y+=45) pts.push({x,y});
     }
     function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary');
         pts.forEach(p => {
             const d = Math.sqrt((mX-p.x)**2 + (mY-p.y)**2);
-            if(d < 200) {
-                ctx.globalAlpha = (1 - d/200);
-                ctx.beginPath(); ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2); ctx.fill();
+            if(d < 220) {
+                ctx.globalAlpha = (1 - d/220);
+                ctx.beginPath(); ctx.arc(p.x, p.y, 1.2, 0, Math.PI*2); ctx.fill();
             }
         });
         requestAnimationFrame(draw);
     }
-
     window.addEventListener('mousemove', e => {
         mX = e.clientX; mY = e.clientY;
         const cur = document.getElementById('custom-cursor');
         cur.style.left = mX+'px'; cur.style.top = mY+'px';
         cur.classList.toggle('expanded', e.target.closest('.btn-interact'));
     });
-
     window.onresize = init;
     init(); draw(); updateUI();
 </script>
