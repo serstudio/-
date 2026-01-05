@@ -27,7 +27,7 @@
             transform: translate(-50%, -50%); transition: 0.1s;
         }
         body.light-mode #custom-cursor {
-            border-color: #000000;
+            border-color: #000000 !important;
             background: rgba(0,0,0,0.1);
         }
 
@@ -196,7 +196,7 @@
 
     function changeLang(l) { showToast("LANG: " + l); }
 
-    // LIDAR: Прицел теперь использует --primary для цвета точек
+    // LIDAR: Прицел теперь адаптируется под цвет фона
     const canvas = document.getElementById('lidar-canvas'), ctx = canvas.getContext('2d');
     let mX=0, mY=0, pts=[];
     function init() {
@@ -205,7 +205,7 @@
     }
     function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        // Динамически берем цвет из CSS переменной --primary
+        // Берем цвет --primary (в белой теме он черный)
         ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary').trim();
         pts.forEach(p => {
             const d = Math.sqrt((mX-p.x)**2 + (mY-p.y)**2);
@@ -225,3 +225,5 @@
 </script>
 </body>
 </html>
+</html>
+
