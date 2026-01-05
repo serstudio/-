@@ -6,197 +6,222 @@
     <title>SeRoF Studio | Lidar Official</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    
     <style>
         :root { 
             --bg: #050505; --text: #ffffff; --primary: #6366f1; 
             --panel-bg: rgba(10, 10, 10, 0.98); --border: rgba(99, 102, 241, 0.3);
         }
-
-        /* ТЕМЫ */
         body.light-mode { 
-            --bg: #e5e5e5; --text: #111111; --primary: #000000; 
-            --panel-bg: rgba(240, 240, 240, 0.98); --border: rgba(0, 0, 0, 0.15); 
+            --bg: #ffffff; --text: #000000; --primary: #000000; 
+            --panel-bg: rgba(255, 255, 255, 0.98); --border: rgba(0, 0, 0, 0.1); 
         }
 
-        /* КУРСОР: В белом режиме становится черным */
+        /* КАСТОМНЫЙ СКРОЛЛБАР */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* ЧЕРНЫЙ ЭКРАН (БЛОКИРОВКА) */
+        #emergency-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            pointer-events: all;
+        }
+        body.emergency-active #emergency-overlay { display: flex; }
+        body.is-admin #emergency-overlay { display: none !important; }
+
+        /* КУРСОР */
         #custom-cursor { 
-            position: fixed; width: 15px; height: 15px; 
-            border: 2px solid var(--primary); border-radius: 50%; 
-            pointer-events: none; z-index: 100001; 
+            position: fixed; width: 15px; height: 15px; border: 2px solid var(--primary); 
+            border-radius: 50%; pointer-events: none; z-index: 99999; 
             transform: translate(-50%, -50%); transition: 0.1s;
         }
-        body.light-mode #custom-cursor {
-            border-color: #000000 !important;
-            background: rgba(0,0,0,0.1);
-        }
-
-        #emergency-overlay {
-            position: fixed; inset: 0; background: #000; z-index: 99999;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; cursor: none !important;
-        }
-
-        .glitch-text {
-            font-size: 3rem; font-weight: 900; color: #ff3333; text-transform: uppercase;
-            letter-spacing: 0.2em; animation: pulse 2s infinite ease-in-out;
-            text-shadow: 0 0 20px rgba(255,0,0,0.5);
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); filter: blur(0px); }
-            50% { opacity: 0.7; transform: scale(0.95); filter: blur(2px); }
-        }
-
-        body.is-admin #emergency-overlay { display: none !important; }
-        body.emergency-active .side-btn { display: none !important; }
-
-        .dev-only { display: none !important; }
-        .dev-visible { display: flex !important; }
-        
-        #pass-gate { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
 
         * { cursor: none !important; user-select: none; box-sizing: border-box; }
         body, html { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; transition: 0.5s; margin: 0; overflow: hidden; width: 100%; height: 100%; }
         
         #lidar-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
-        .side-btn { position: fixed; width: 50px; height: 50px; background: var(--panel-bg); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 14px; display: flex; align-items: center; justify-content: center; z-index: 110; transition: 0.4s; color: var(--primary); }
-        .terminal-panel { position: fixed; top: 0; width: 380px; height: 100%; background: var(--panel-bg); z-index: 120; transition: 0.5s; padding: 30px; display: flex; flex-direction: column; }
-        #settings-panel { left: -380px; border-right: 1px solid var(--border); }
-        #dev-panel { right: -380px; border-left: 1px solid var(--border); }
-        #settings-panel.open { transform: translateX(380px); }
-        #dev-panel.open { transform: translateX(-380px); }
+        
+        .side-btn { position: fixed; width: 50px; height: 50px; background: var(--panel-bg); border: 1px solid var(--border); border-radius: 14px; display: flex; align-items: center; justify-content: center; z-index: 110; color: var(--primary); transition: 0.3s; }
+        .badge { position: absolute; top: -5px; right: -5px; background: #ff3333; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 10px; display: none; }
+
+        .terminal-panel { position: fixed; top: 0; width: 350px; height: 100%; background: var(--panel-bg); z-index: 200; transition: 0.5s; padding: 30px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        #settings-panel { left: -350px; }
+        #dev-panel { right: -350px; border-right: none; border-left: 1px solid var(--border); }
+        .open { transform: translateX(350px); }
+        #dev-panel.open { transform: translateX(-350px); }
+
+        .chat-area { flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.05); border-radius: 10px; padding: 10px; margin: 10px 0; display: flex; flex-direction: column; gap: 5px; }
+        .msg { padding: 8px; border-radius: 5px; font-size: 11px; max-width: 80%; }
+        .msg-user { background: var(--border); align-self: flex-end; }
+        .msg-dev { background: var(--primary); color: #fff; align-self: flex-start; }
+
+        .switch { width: 40px; height: 20px; background: #333; border-radius: 20px; position: relative; }
+        .switch-on { background: #ff3333 !important; }
+        .switch::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
+        .switch-on::after { left: 22px; }
 
         .btn-interact { pointer-events: auto; }
-        .switch { width: 40px; height: 20px; background: #333; border-radius: 20px; position: relative; cursor: pointer; }
-        .switch-on { background: #ff3333; }
-        .switch::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
-        .switch-on::after { left: 22px; }
+        .glitch-text { color: #ff3333; font-weight: 900; font-size: 2rem; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body id="main-body">
 
 <div id="emergency-overlay">
-    <div class="glitch-text">Идет обновление сайта</div>
-    <p class="text-white/30 mt-4 text-[10px] tracking-[1em] uppercase">Пожалуйста, зайдите позже</p>
+    <div class="glitch-text">САЙТ В ОБНОВЛЕНИИ</div>
+    <p style="color: white; opacity: 0.3; font-size: 10px; margin-top: 10px;">ЗАЙДИТЕ ПОЗЖЕ</p>
 </div>
 
-<div id="pass-gate">
-    <div class="bg-[#0a0a0a] p-10 rounded-3xl border border-indigo-500 text-center">
-        <h3 class="text-white font-black mb-6 uppercase tracking-widest text-xs">Admin Access</h3>
-        <input type="password" id="admin-pass-input" class="mb-4 text-center btn-interact w-full p-3 bg-white/5 border border-white/10 rounded-xl outline-none" placeholder="••••">
-        <button onclick="checkPass()" class="w-full bg-indigo-600 py-3 rounded-xl font-bold btn-interact">ВХОД</button>
+<div id="pass-gate" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:10000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+    <div class="text-center p-10 bg-black border border-indigo-500 rounded-3xl">
+        <input type="password" id="admin-pass" class="btn-interact p-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4 block w-full outline-none" placeholder="ПАРОЛЬ">
+        <button onclick="checkPass()" class="btn-interact bg-indigo-600 px-10 py-3 rounded-xl font-bold text-white">ВХОД</button>
     </div>
 </div>
 
 <div id="custom-cursor"></div>
 <canvas id="lidar-canvas"></canvas>
 
-<button class="side-btn btn-interact" style="left: 40px; top: 40%;" onclick="openPanel('settings-panel')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+<button class="side-btn btn-interact" style="left: 30px; top: 40%;" onclick="openPanel('settings-panel')">⚙️</button>
+<button id="btn-dev" class="side-btn btn-interact" style="left: 30px; top: 50%; display: none;" onclick="openPanel('dev-panel')">
+    <span id="dev-badge" class="badge">0</span>📟
+</button>
+<button id="btn-chat" class="side-btn btn-interact" style="right: 30px; bottom: 30px;" onclick="toggleChat()">
+    <span id="chat-badge" class="badge">0</span>💬
 </button>
 
-<button id="btn-dev" class="side-btn btn-interact dev-only" style="left: 40px; top: 52%;" onclick="openPanel('dev-panel')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-</button>
+<div id="chat-window" style="position:fixed; bottom:100px; right:30px; width:300px; height:400px; background:var(--panel-bg); border:1px solid var(--border); border-radius:20px; z-index:1000; display:none; flex-direction:column; overflow:hidden;">
+    <div class="p-4 border-b border-border flex justify-between font-bold text-[10px]">
+        <span>ПОДДЕРЖКА</span>
+        <span class="btn-interact cursor-pointer" onclick="toggleChat()">✕</span>
+    </div>
+    <div id="client-chat-box" class="chat-area mx-3"></div>
+    <div class="p-3 flex gap-2">
+        <input type="text" id="client-input" class="flex-1 bg-white/5 p-2 rounded text-xs outline-none" placeholder="Вопрос...">
+        <button onclick="sendMsg('user')" class="btn-interact bg-indigo-600 px-3 rounded text-[10px] font-bold">></button>
+    </div>
+</div>
 
 <div id="settings-panel" class="terminal-panel">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-2xl font-black italic text-indigo-500">SYSTEM</h2>
-        <div onclick="closePanels()" class="btn-interact cursor-pointer opacity-50 hover:opacity-100">✕</div>
+    <div class="flex justify-between items-center mb-10">
+        <h2 class="font-black italic text-xl">SETTINGS</h2>
+        <span class="btn-interact cursor-pointer" onclick="closePanels()">✕</span>
     </div>
-    <div class="space-y-4 mb-8 flex-grow">
-        <div class="flex justify-between items-center p-4 rounded-xl btn-interact bg-white/5" onclick="toggleTheme()">
-            <span class="text-[10px] font-bold uppercase tracking-widest">Тема</span>
+    <div class="space-y-4 flex-grow">
+        <div class="flex justify-between items-center p-4 bg-white/5 rounded-xl btn-interact" onclick="toggleTheme()">
+            <span class="text-[10px] font-bold">СВЕТЛАЯ ТЕМА</span>
             <div id="sw-light" class="switch"></div>
         </div>
         <div class="grid grid-cols-2 gap-2">
-            <button onclick="changeLang('RU')" class="p-3 bg-white/5 rounded-xl text-[10px] font-bold btn-interact">RU</button>
-            <button onclick="changeLang('EN')" class="p-3 bg-white/5 rounded-xl text-[10px] font-bold btn-interact">EN</button>
+            <button onclick="showToast('RU')" class="btn-interact p-3 bg-white/5 rounded-xl text-[10px]">RU</button>
+            <button onclick="showToast('EN')" class="btn-interact p-3 bg-white/5 rounded-xl text-[10px]">EN</button>
+            <button onclick="showToast('DE')" class="btn-interact p-3 bg-white/5 rounded-xl text-[10px]">DE</button>
+            <button onclick="showToast('FR')" class="btn-interact p-3 bg-white/5 rounded-xl text-[10px]">FR</button>
+        </div>
+        <div class="pt-10 border-t border-white/10">
+            <h3 class="text-[10px] font-bold opacity-30 mb-2">О СТУДИИ SeRoF</h3>
+            <p class="text-[10px] opacity-60">Мы создаем лучшие Lidar-хорроры. Спасибо, что вы с нами.</p>
         </div>
     </div>
 </div>
 
 <div id="dev-panel" class="terminal-panel">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-2xl font-black italic text-red-500">CONSOLE</h2>
-        <div onclick="closePanels()" class="btn-interact cursor-pointer opacity-50 hover:opacity-100">✕</div>
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="font-black italic text-xl text-red-500">CONSOLE</h2>
+        <span class="btn-interact cursor-pointer" onclick="closePanels()">✕</span>
     </div>
-    <div class="p-4 rounded-xl mb-4 flex justify-between items-center btn-interact bg-red-500/10 border border-red-500/30" onclick="toggleEmergency()">
-        <span class="text-red-500 font-bold text-[10px] tracking-widest">РЕЖИМ ОБНОВЛЕНИЯ</span>
+    <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex justify-between items-center btn-interact" onclick="toggleEmergency()">
+        <span class="text-red-500 font-bold text-[10px]">ОБНОВЛЕНИЕ</span>
         <div id="sw-sus" class="switch"></div>
+    </div>
+    <div id="admin-chat-box" class="chat-area"></div>
+    <div class="flex gap-2">
+        <input type="text" id="admin-input" class="flex-1 bg-white/5 p-2 rounded text-xs outline-none" placeholder="Ответ...">
+        <button onclick="sendMsg('dev')" class="btn-interact bg-red-600 px-3 rounded">></button>
     </div>
 </div>
 
-<div id="main-content" class="relative z-10 w-full h-full flex flex-col items-center justify-center pointer-events-none text-center">
-    <h1 id="title" class="text-7xl md:text-9xl font-black italic tracking-tighter btn-interact" onclick="logoClick()">SEROF</h1>
-    <p id="sub" class="mt-4 text-[10px] tracking-[1.5em] font-bold opacity-30 uppercase">Lidar Horror Studio</p>
+<div id="main-content" class="relative z-10 w-full h-full flex flex-col items-center justify-center pointer-events-none">
+    <h1 id="title" class="text-8xl font-black italic tracking-tighter btn-interact" onclick="logoClick()">SEROF</h1>
+    <p class="text-[10px] tracking-[1.5em] font-bold opacity-30 mt-4 uppercase">Lidar Horror Studio</p>
 </div>
 
 <script>
-    const ADMIN_PASS = "1234";
-    let isDevMode = false;
-    let clicks = 0;
-    let emergency = localStorage.getItem('global_update') === 'true';
+    let isDev = false, clicks = 0, emergency = localStorage.getItem('global_update') === 'true';
+    let unreadDev = 0, unreadUser = 0, msgs = [];
 
+    // ВСЕГДА ДОСТУПНАЯ АДМИНКА
     function logoClick() { 
         clicks++; 
-        if(clicks >= 5) { 
-            document.getElementById('pass-gate').style.display='flex'; 
-            clicks=0; 
-        } 
+        if(clicks >= 5) { document.getElementById('pass-gate').style.display = 'flex'; clicks = 0; }
     }
 
     function checkPass() {
-        if(document.getElementById('admin-pass-input').value === ADMIN_PASS) {
-            isDevMode = true;
+        if(document.getElementById('admin-pass').value === "1234") {
+            isDev = true;
             document.body.classList.add('is-admin');
             document.getElementById('pass-gate').style.display = 'none';
-            document.getElementById('btn-dev').classList.add('dev-visible');
-            showToast("ADMIN ACCESS GRANTED");
-        } else { showToast("WRONG PASSWORD", true); }
-        document.getElementById('admin-pass-input').value = '';
+            document.getElementById('btn-dev').style.display = 'flex';
+            showToast("ADMIN OK");
+        } else { showToast("ERROR", true); }
+        document.getElementById('admin-pass').value = '';
     }
 
     function toggleEmergency() {
         emergency = !emergency;
         localStorage.setItem('global_update', emergency);
-        updateUI();
+        document.getElementById('sw-sus').classList.toggle('switch-on', emergency);
+        document.body.classList.toggle('emergency-active', emergency);
     }
 
-    function updateUI() {
-        const overlay = document.getElementById('emergency-overlay');
-        const sw = document.getElementById('sw-sus');
-        if(emergency) {
-            document.body.classList.add('emergency-active');
-            overlay.style.display = 'flex';
-            if(sw) sw.classList.add('switch-on');
-        } else {
-            document.body.classList.remove('emergency-active');
-            overlay.style.display = 'none';
-            if(sw) sw.classList.remove('switch-on');
-        }
-    }
-
-    function showToast(txt, isRed = false) {
-        let t = document.createElement('div');
-        t.className = `fixed top-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl z-[200000] font-bold text-[10px] text-white ${isRed?'bg-red-600':'bg-indigo-600'}`;
-        t.innerText = txt.toUpperCase();
-        document.body.appendChild(t);
-        setTimeout(() => { t.remove(); }, 2000);
-    }
-
-    function openPanel(id) { closePanels(); document.getElementById(id).classList.add('open'); }
-    function closePanels() { document.querySelectorAll('.terminal-panel').forEach(p => p.classList.remove('open')); }
-    
-    function toggleTheme() { 
-        document.body.classList.toggle('light-mode'); 
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
         document.getElementById('sw-light').classList.toggle('switch-on');
     }
 
-    function changeLang(l) { showToast("LANG: " + l); }
+    function showToast(m, r=false) {
+        let t = document.createElement('div');
+        t.className = `fixed top-5 left-1/2 -translate-x-1/2 p-4 rounded-xl z-[10000] text-white font-bold text-[10px] ${r?'bg-red-600':'bg-indigo-600'}`;
+        t.innerText = m; document.body.appendChild(t);
+        setTimeout(()=>t.remove(), 2000);
+    }
 
-    // LIDAR: Прицел теперь адаптируется под цвет фона
+    // ЧАТ И УВЕДОМЛЕНИЯ
+    function sendMsg(type) {
+        let inp = document.getElementById(type === 'dev' ? 'admin-input' : 'client-input');
+        if(!inp.value.trim()) return;
+        msgs.push({ text: inp.value, type });
+        if(type === 'user') unreadDev++; else unreadUser++;
+        inp.value = ''; updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('sw-sus').classList.toggle('switch-on', emergency);
+        document.body.classList.toggle('emergency-active', emergency);
+        
+        let dB = document.getElementById('dev-badge'), uB = document.getElementById('chat-badge');
+        dB.innerText = unreadDev; dB.style.display = unreadDev > 0 ? 'block' : 'none';
+        uB.innerText = unreadUser; uB.style.display = unreadUser > 0 ? 'block' : 'none';
+
+        const aB = document.getElementById('admin-chat-box'), cB = document.getElementById('client-chat-box');
+        aB.innerHTML = cB.innerHTML = '';
+        msgs.forEach(m => {
+            let d = document.createElement('div'); d.className = `msg msg-${m.type}`; d.innerText = m.text;
+            aB.appendChild(d.cloneNode(true)); cB.appendChild(d);
+        });
+    }
+
+    function toggleChat() { 
+        let w = document.getElementById('chat-window');
+        w.style.display = w.style.display === 'flex' ? 'none' : 'flex';
+        unreadUser = 0; updateUI();
+    }
+
+    function openPanel(id) { closePanels(); document.getElementById(id).classList.add('open'); if(id==='dev-panel') unreadDev=0; updateUI(); }
+    function closePanels() { document.querySelectorAll('.terminal-panel').forEach(p=>p.classList.remove('open')); }
+
+    // LIDAR И КУРСОР
     const canvas = document.getElementById('lidar-canvas'), ctx = canvas.getContext('2d');
     let mX=0, mY=0, pts=[];
     function init() {
@@ -205,25 +230,19 @@
     }
     function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        // Берем цвет --primary (в белой теме он черный)
         ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary').trim();
         pts.forEach(p => {
-            const d = Math.sqrt((mX-p.x)**2 + (mY-p.y)**2);
-            if(d < 220) {
-                ctx.globalAlpha = (1 - d/220);
-                ctx.beginPath(); ctx.arc(p.x, p.y, 1.2, 0, Math.PI*2); ctx.fill();
-            }
+            let d = Math.sqrt((mX-p.x)**2 + (mY-p.y)**2);
+            if(d < 200) { ctx.globalAlpha = (1 - d/200); ctx.beginPath(); ctx.arc(p.x, p.y, 1.2, 0, Math.PI*2); ctx.fill(); }
         });
         requestAnimationFrame(draw);
     }
     window.addEventListener('mousemove', e => {
         mX = e.clientX; mY = e.clientY;
-        const cur = document.getElementById('custom-cursor');
-        cur.style.left = mX+'px'; cur.style.top = mY+'px';
+        let c = document.getElementById('custom-cursor');
+        c.style.left = mX+'px'; c.style.top = mY+'px';
     });
     window.onresize = init; init(); draw(); updateUI();
 </script>
 </body>
 </html>
-</html>
-
