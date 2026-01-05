@@ -3,30 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SeRoF Studio | Lidar</title>
+    <title>SeRoF Studio | Lidar Official</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
             --bg: #050505; --text: #ffffff; --primary: #6366f1; 
-            --panel-bg: rgba(10, 10, 10, 0.95); --border: rgba(99, 102, 241, 0.3);
+            --panel-bg: rgba(10, 10, 10, 0.98); --border: rgba(99, 102, 241, 0.3);
             --input-bg: rgba(255, 255, 255, 0.05); --glow: 0 0 15px rgba(99, 102, 241, 0.4);
         }
         
         body.light-mode { --bg: #e5e5e5; --text: #111111; --primary: #4f46e5; --panel-bg: rgba(240, 240, 240, 0.98); --border: rgba(0, 0, 0, 0.15); }
         body.accessible-mode { font-size: 1.25rem; }
-        body.accessible-mode .side-btn { width: 65px; height: 65px; }
 
         /* КАСТОМНЫЙ СКРОЛЛБАР */
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; box-shadow: 0 0 10px var(--primary); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
         /* ЭФФЕКТ ОБНОВЛЕНИЯ */
         body.emergency-active { animation: glitch-bg 0.5s infinite; }
         @keyframes glitch-bg { 0%, 100% { background: #050505; } 50% { background: #1a0505; } }
-        body.emergency-active #title { color: #ff3333; text-shadow: 0 0 30px rgba(255, 0, 0, 0.6); animation: pulse-red 1.5s infinite; }
-        @keyframes pulse-red { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.98); } }
+        body.emergency-active #title { color: #ff3333; text-shadow: 0 0 30px rgba(255, 0, 0, 0.6); }
 
         .dev-only { display: none !important; }
         .dev-visible { display: flex !important; }
@@ -44,7 +42,6 @@
         .side-btn { position: fixed; width: 50px; height: 50px; background: var(--panel-bg); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 14px; display: flex; align-items: center; justify-content: center; z-index: 110; transition: 0.4s; color: var(--primary); }
         .side-btn:hover { border-color: var(--primary); transform: scale(1.1); }
         
-        /* ИНДИКАТОР СООБЩЕНИЙ */
         .badge { position: absolute; top: -5px; right: -5px; background: #ff3333; color: white; font-size: 10px; font-weight: bold; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; border: 2px solid var(--bg); }
 
         .terminal-panel { position: fixed; top: 0; width: 380px; height: 100%; background: var(--panel-bg); z-index: 120; transition: 0.5s; padding: 30px; display: flex; flex-direction: column; }
@@ -54,7 +51,7 @@
         #dev-panel.open { transform: translateX(-380px); }
 
         .chat-area { flex-grow: 1; overflow-y: auto; background: rgba(255,255,255,0.02); border-radius: 16px; padding: 15px; margin: 10px 0; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border); }
-        .msg { max-width: 85%; padding: 8px 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; }
+        .msg { max-width: 85%; padding: 8px 12px; border-radius: 4px; font-size: 11px; }
         .msg-user { align-self: flex-end; background: var(--input-bg); border: 1px solid var(--border); }
         .msg-dev { align-self: flex-start; background: var(--primary); color: #000; font-weight: bold; }
 
@@ -63,7 +60,9 @@
         .switch::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
         .switch-on::after { left: 22px; }
 
-        input { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px; color: white; outline: none; font-size: 12px; }
+        .exit-btn { position: absolute; top: 20px; right: 20px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
+        .exit-btn:hover { opacity: 1; transform: rotate(90deg); }
+
         .btn-interact { pointer-events: auto; }
     </style>
 </head>
@@ -71,9 +70,9 @@
 
 <div id="pass-gate">
     <div class="bg-[#0a0a0a] p-10 rounded-3xl border border-indigo-500 text-center">
-        <h3 class="text-white font-black mb-6 uppercase tracking-tighter">Системный вход</h3>
-        <input type="password" id="admin-pass-input" class="mb-4 text-center btn-interact w-full p-2 bg-white/5 border border-white/10 rounded" placeholder="Пароль">
-        <button onclick="checkPass()" class="w-full bg-indigo-600 py-3 rounded-xl font-bold btn-interact">ВОЙТИ</button>
+        <h3 class="text-white font-black mb-6 uppercase tracking-widest text-xs">Terminal Access</h3>
+        <input type="password" id="admin-pass-input" class="mb-4 text-center btn-interact w-full p-3 bg-white/5 border border-white/10 rounded-xl" placeholder="••••">
+        <button onclick="checkPass()" class="w-full bg-indigo-600 py-3 rounded-xl font-bold btn-interact">AUTH</button>
     </div>
 </div>
 
@@ -95,177 +94,164 @@
 </button>
 
 <div id="settings-panel" class="terminal-panel">
-    <h2 class="text-3xl font-black italic mb-8 tracking-tighter text-indigo-500">СИСТЕМА</h2>
-    <div class="space-y-4 flex-grow">
+    <div class="exit-btn btn-interact" onclick="closePanels()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+    <h2 class="text-3xl font-black italic mb-8 text-indigo-500">SYSTEM</h2>
+    
+    <div class="space-y-4 mb-8">
         <div class="flex justify-between items-center p-4 rounded-xl btn-interact bg-white/5" onclick="toggleOption('light')">
             <span class="text-[10px] font-bold uppercase">Светлая тема</span>
             <div id="sw-light" class="switch"></div>
         </div>
         <div class="flex justify-between items-center p-4 rounded-xl btn-interact bg-white/5" onclick="toggleOption('acc')">
-            <span class="text-[10px] font-bold uppercase">Слабовидящие</span>
+            <span class="text-[10px] font-bold uppercase">Доступность</span>
             <div id="sw-acc" class="switch"></div>
         </div>
         <div class="grid grid-cols-2 gap-2">
-            <button class="p-4 bg-white/5 rounded-xl text-[10px] font-bold btn-interact hover:bg-white/10" onclick="alert('Язык изменен')">RU</button>
-            <button class="p-4 bg-white/5 rounded-xl text-[10px] font-bold btn-interact hover:bg-white/10" onclick="alert('Language changed')">EN</button>
+            <button onclick="changeLang('RU')" class="p-3 bg-white/5 rounded-xl text-[10px] font-bold btn-interact">RU</button>
+            <button onclick="changeLang('EN')" class="p-3 bg-white/5 rounded-xl text-[10px] font-bold btn-interact">EN</button>
+            <button onclick="changeLang('DE')" class="p-3 bg-white/5 rounded-xl text-[10px] font-bold btn-interact">DE</button>
+            <button onclick="changeLang('FR')" class="p-3 bg-white/5 rounded-xl text-[10px] font-bold btn-interact">FR</button>
         </div>
     </div>
-    <button class="w-full py-4 bg-indigo-600 rounded-xl font-bold btn-interact mt-4" onclick="closePanels()">СОХРАНИТЬ</button>
+
+    <div class="border-t border-white/10 pt-6">
+        <h3 class="text-[10px] font-bold opacity-40 mb-4 uppercase tracking-widest">О СТУДИИ</h3>
+        <p class="text-[11px] leading-relaxed opacity-80">SeRoF Studio — независимая команда разработчиков атмосферных хоррор-проектов. Наш главный проект Lidar Horror переопределяет страх перед неизвестным.</p>
+    </div>
 </div>
 
 <div id="dev-panel" class="terminal-panel">
-    <h2 class="text-3xl font-black italic mb-4 tracking-tighter text-red-500">КОНСОЛЬ</h2>
+    <div class="exit-btn btn-interact" onclick="closePanels()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+    <h2 class="text-3xl font-black italic mb-4 text-red-500">CONSOLE</h2>
     <div class="p-4 rounded-xl mb-4 flex justify-between items-center btn-interact bg-red-500/10 border border-red-500/20" onclick="toggleEmergency()">
         <span class="text-red-500 font-bold text-[10px]">ОБНОВЛЕНИЕ САЙТА</span>
         <div id="sw-sus" class="switch"></div>
     </div>
-    <div class="text-[9px] opacity-40 uppercase mb-2 font-bold tracking-widest">Входящие сообщения</div>
     <div id="admin-chat-box" class="chat-area"></div>
     <div class="flex gap-2 mt-2">
-        <input type="text" id="admin-input" class="flex-1" placeholder="Ответить клиенту...">
-        <button onclick="sendMsg('dev')" class="px-4 bg-indigo-600 rounded-xl font-bold btn-interact">></button>
+        <input type="text" id="admin-input" class="flex-1 bg-white/5 border border-white/10 rounded-xl p-3 text-xs outline-none" placeholder="Ответ клиенту...">
+        <button onclick="sendMsg('dev')" class="px-6 bg-indigo-600 rounded-xl font-bold btn-interact">></button>
     </div>
 </div>
 
-<div id="client-chat-window" class="fixed bottom-24 right-8 w-80 h-[450px] border border-white/10 rounded-2xl z-[150] hidden flex-col overflow-hidden bg-black/90 backdrop-blur-xl shadow-2xl">
-    <div class="p-4 border-b border-white/10 text-[10px] font-bold flex justify-between items-center">
-        <span>ПОДДЕРЖКА SeRoF</span> <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+<div id="client-chat-window" class="fixed bottom-24 right-8 w-80 h-[480px] border border-white/10 rounded-3xl z-[150] hidden flex-col overflow-hidden bg-black shadow-2xl">
+    <div class="p-5 border-b border-white/10 text-[10px] font-bold flex justify-between items-center bg-white/5">
+        <span>SUPPORT AGENT</span>
+        <div class="flex gap-3">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <div onclick="toggleChat()" class="btn-interact opacity-50 hover:opacity-100">✕</div>
+        </div>
     </div>
-    <div id="client-chat-box" class="chat-area mx-3"></div>
-    <div class="p-3 bg-white/5 flex gap-2">
-        <input type="text" id="client-input" class="flex-1 text-xs" placeholder="Ваш вопрос...">
-        <button onclick="sendMsg('user')" class="px-3 bg-indigo-600 rounded-lg text-xs font-bold btn-interact">ОТПРАВИТЬ</button>
+    <div id="client-chat-box" class="chat-area mx-4 my-3"></div>
+    <div class="p-4 bg-white/5 flex gap-2">
+        <input type="text" id="client-input" class="flex-1 bg-black/40 border border-white/10 rounded-xl p-3 text-xs outline-none" placeholder="Напишите нам...">
+        <button onclick="sendMsg('user')" class="px-4 bg-indigo-600 rounded-xl font-bold btn-interact text-[10px]">SEND</button>
     </div>
 </div>
 
-<div id="main-content" class="relative z-10 w-full h-full flex flex-col items-center justify-center pointer-events-none text-center p-4">
+<div id="main-content" class="relative z-10 w-full h-full flex flex-col items-center justify-center pointer-events-none text-center">
     <h1 id="title" class="text-7xl md:text-9xl font-black italic tracking-tighter btn-interact" onclick="logoClick()">SEROF</h1>
-    <p id="sub" class="mt-2 text-[10px] tracking-[1.5em] font-bold opacity-30 uppercase">Lidar Horror Studio</p>
+    <p id="sub" class="mt-4 text-[10px] tracking-[1.5em] font-bold opacity-30 uppercase">Lidar Horror Studio</p>
 </div>
 
 <script>
-    const ADMIN_PASS = "1234"; 
-    let isDevMode = false;
-    let clicks = 0;
-    let emergency = localStorage.getItem('site_update') === 'true';
-    let unreadDev = 0;
-    let unreadUser = 0;
+    const ADMIN_PASS = "1234";
+    let isDevMode = false, clicks = 0, emergency = localStorage.getItem('site_update') === 'true';
+    let unreadDev = 0, unreadUser = 0, messages = [];
 
-    // Секретный вход
+    // УВЕДОМЛЕНИЯ
+    function showToast(txt, isRed = false) {
+        let t = document.createElement('div');
+        t.className = `fixed top-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl z-[2000] font-bold text-[10px] tracking-widest text-white transition-all shadow-2xl ${isRed?'bg-red-600':'bg-indigo-600'}`;
+        t.innerText = txt.toUpperCase();
+        document.body.appendChild(t);
+        setTimeout(() => { t.style.opacity='0'; t.style.transform='translate(-50%, -20px)'; setTimeout(()=>t.remove(), 500); }, 2000);
+    }
+
+    // СЕКРЕТНЫЙ ВХОД
     function logoClick() { clicks++; if(clicks >= 5) { document.getElementById('pass-gate').style.display='flex'; clicks=0; } }
     window.addEventListener('keydown', (e) => { if(e.altKey && (e.key === 'a' || e.key === 'ф')) document.getElementById('pass-gate').style.display='flex'; });
 
     function checkPass() {
         if(document.getElementById('admin-pass-input').value === ADMIN_PASS) {
-            isDevMode = true;
-            document.getElementById('pass-gate').style.display = 'none';
+            isDevMode = true; document.getElementById('pass-gate').style.display = 'none';
             document.getElementById('btn-dev').classList.add('dev-visible');
-            alert("Админ-панель разблокирована");
-        } else { alert("Ошибка доступа"); }
+            showToast("ACCESS GRANTED");
+        } else { showToast("WRONG PASSWORD", true); }
+        document.getElementById('admin-pass-input').value = '';
     }
 
-    // Настройки
-    const settings = { light: false, acc: false };
+    // НАСТРОЙКИ
     function toggleOption(k) {
-        settings[k] = !settings[k];
         document.body.classList.toggle(k === 'light' ? 'light-mode' : 'accessible-mode');
         document.getElementById(`sw-${k}`).classList.toggle('switch-on');
+        showToast("MODIFIED");
     }
 
-    // Режим обновления
+    function changeLang(l) { showToast("LANGUAGE: " + l); }
+
+    // ОБНОВЛЕНИЕ
     function toggleEmergency() {
-        emergency = !emergency;
-        localStorage.setItem('site_update', emergency);
-        updateUI();
+        emergency = !emergency; localStorage.setItem('site_update', emergency);
+        updateUI(); showToast(emergency ? "MAINTENANCE ON" : "MAINTENANCE OFF", emergency);
     }
 
     function updateUI() {
-        const title = document.getElementById('title');
-        const sub = document.getElementById('sub');
-        const sw = document.getElementById('sw-sus');
+        const t = document.getElementById('title'), s = document.getElementById('sub'), sw = document.getElementById('sw-sus');
         if(emergency) {
-            document.body.classList.add('emergency-active');
-            if(sw) sw.classList.add('switch-on');
-            title.innerText = "НА САЙТЕ ИДЕТ ОБНОВЛЕНИЕ";
-            title.style.fontSize = "4rem";
-            sub.innerText = "ВЕРНЕМСЯ СОВСЕМ СКОРО";
+            document.body.classList.add('emergency-active'); if(sw) sw.classList.add('switch-on');
+            t.innerText = "НА САЙТЕ ИДЕТ ОБНОВЛЕНИЕ"; t.style.fontSize = "3.5rem"; s.innerText = "ВЕРНЕМСЯ ЧЕРЕЗ НЕСКОЛЬКО МИНУТ";
         } else {
-            document.body.classList.remove('emergency-active');
-            if(sw) sw.classList.remove('switch-on');
-            title.innerText = "SEROF";
-            title.style.fontSize = "";
-            sub.innerText = "Lidar Horror Studio";
+            document.body.classList.remove('emergency-active'); if(sw) sw.classList.remove('switch-on');
+            t.innerText = "SEROF"; t.style.fontSize = ""; s.innerText = "Lidar Horror Studio";
         }
     }
 
-    // Система чата
-    let messages = [];
+    // ЧАТ
     function sendMsg(type) {
         const inp = document.getElementById(type === 'dev' ? 'admin-input' : 'client-input');
         if(!inp.value.trim()) return;
-        
-        const msgData = { text: inp.value, type };
-        messages.push(msgData);
-        inp.value = '';
-
-        // Уведомления
-        if(type === 'user') {
-            if(!document.getElementById('dev-panel').classList.contains('open')) {
-                unreadDev++; updateBadges();
-            }
-        } else {
-            if(!document.getElementById('client-chat-window').style.display === 'flex') {
-                unreadUser++; updateBadges();
-            }
-        }
-        renderChat();
+        messages.push({ text: inp.value, type });
+        if(type === 'user' && !document.getElementById('dev-panel').classList.contains('open')) unreadDev++;
+        if(type === 'dev' && document.getElementById('client-chat-window').style.display !== 'flex') unreadUser++;
+        inp.value = ''; updateBadges(); renderChat();
     }
 
     function updateBadges() {
-        const devB = document.getElementById('dev-badge');
-        const userB = document.getElementById('chat-badge');
-        
-        devB.innerText = unreadDev;
-        devB.style.display = unreadDev > 0 ? 'flex' : 'none';
-        
-        userB.innerText = unreadUser;
-        userB.style.display = unreadUser > 0 ? 'flex' : 'none';
+        const dB = document.getElementById('dev-badge'), uB = document.getElementById('chat-badge');
+        dB.innerText = unreadDev; dB.style.display = unreadDev > 0 ? 'flex' : 'none';
+        uB.innerText = unreadUser; uB.style.display = unreadUser > 0 ? 'flex' : 'none';
     }
 
     function renderChat() {
-        const aBox = document.getElementById('admin-chat-box');
-        const cBox = document.getElementById('client-chat-box');
-        aBox.innerHTML = cBox.innerHTML = '';
+        const aB = document.getElementById('admin-chat-box'), cB = document.getElementById('client-chat-box');
+        aB.innerHTML = cB.innerHTML = '';
         messages.forEach(m => {
-            const d = document.createElement('div');
-            d.className = `msg msg-${m.type}`;
-            d.innerText = m.text;
-            aBox.appendChild(d.cloneNode(true));
-            cBox.appendChild(d);
+            const d = document.createElement('div'); d.className = `msg msg-${m.type}`; d.innerText = m.text;
+            aB.appendChild(d.cloneNode(true)); cB.appendChild(d);
         });
-        aBox.scrollTop = aBox.scrollHeight;
-        cBox.scrollTop = cBox.scrollHeight;
+        aB.scrollTop = aB.scrollHeight; cB.scrollTop = cB.scrollHeight;
     }
 
     function toggleChat() {
         const w = document.getElementById('client-chat-window');
-        const isOpen = w.style.display === 'flex';
-        w.style.display = isOpen ? 'none' : 'flex';
-        if(!isOpen) { unreadUser = 0; updateBadges(); }
-        renderChat();
+        w.style.display = w.style.display === 'flex' ? 'none' : 'flex';
+        if(w.style.display === 'flex') { unreadUser = 0; updateBadges(); renderChat(); }
     }
 
     function openPanel(id) {
-        closePanels();
-        document.getElementById(id).classList.add('open');
-        if(id === 'dev-panel') { unreadDev = 0; updateBadges(); }
+        closePanels(); document.getElementById(id).classList.add('open');
+        if(id === 'dev-panel') { unreadDev = 0; updateBadges(); renderChat(); }
     }
 
     function closePanels() { document.querySelectorAll('.terminal-panel').forEach(p => p.classList.remove('open')); }
 
-    // Лидар
-    const canvas = document.getElementById('lidar-canvas');
-    const ctx = canvas.getContext('2d');
+    // LIDAR
+    const canvas = document.getElementById('lidar-canvas'), ctx = canvas.getContext('2d');
     let mX=0, mY=0, pts=[];
     function init() {
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -289,8 +275,7 @@
         cur.style.left = mX+'px'; cur.style.top = mY+'px';
         cur.classList.toggle('expanded', e.target.closest('.btn-interact'));
     });
-    window.onresize = init;
-    init(); draw(); updateUI();
+    window.onresize = init; init(); draw(); updateUI();
 </script>
 </body>
 </html>
